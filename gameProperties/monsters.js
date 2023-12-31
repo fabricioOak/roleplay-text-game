@@ -8,12 +8,100 @@ export default [
 		abilities: ["Split", "Acidic Touch"],
 	},
 	{
+		name: "Lifeless Creature",
+		level: 2,
+		health: 15,
+		description:
+			"A basic and amorphous creature that oozes and splits when attacked.",
+		abilities: ["Split", "Acidic Touch"],
+	},
+	{
+		name: "Fanding Shade",
+		level: 4,
+		health: 30,
+		description:
+			"A stealthy creature that moves in the shadows, striking when least expected.",
+		abilities: ["Stealth", "Backstab"],
+	},
+	{
+		name: "Dead Guardian",
+		level: 4,
+		health: 35,
+		description:
+			"An animated stone statue that defends ancient ruins with unyielding strength.",
+		abilities: ["Rock Shield", "Earthquake Slam"],
+	},
+	{
+		name: "Fangbite Spider",
+		level: 5,
+		health: 40,
+		description:
+			"A fiery being that engulfs its enemies in flames, leaving them scorched.",
+		abilities: ["Fire Burst", "Ignite"],
+	},
+	{
+		name: "Stormwing",
+		level: 5,
+		health: 40,
+		description:
+			"A winged creature that commands the power of storms, unleashing lightning bolts.",
+		abilities: ["Stormy Flight", "Thunderstrike"],
+	},
+	{
+		name: "Frostbite",
+		level: 6,
+		health: 50,
+		description:
+			"A massive dragon-like creature that freezes its foes with icy breath.",
+		abilities: ["Frost Breath", "Ice Claws"],
+	},
+	{
+		name: "Wraith",
+		level: 6,
+		health: 45,
+		description:
+			"A ghostly apparition haunting the depths, draining life force with ethereal attacks.",
+		abilities: ["Ethereal Touch", "Soul Drain"],
+	},
+	{
+		name: "Thunderclap",
+		level: 7,
+		health: 60,
+		description:
+			"A golem charged with electricity, capable of unleashing powerful lightning strikes.",
+		abilities: ["Electric Charge", "Thunder Smash"],
+	},
+	{
+		name: "Molten Giant",
+		level: 7,
+		health: 55,
+		description:
+			"A colossal creature of molten lava, leaving a trail of destruction in its wake.",
+		abilities: ["Lava Burst", "Magma Slam"],
+	},
+	{
+		name: "Serpent",
+		level: 8,
+		health: 70,
+		description:
+			"A giant serpent with venomous fangs, delivering lethal bites to its prey.",
+		abilities: ["Venom Spit", "Constrict"],
+	},
+	{
+		name: "Chaos Mage",
+		level: 8,
+		health: 65,
+		description:
+			"A mage wielding the chaotic forces of the arcane, warping reality with each spell.",
+		abilities: ["Reality Warp", "Chaos Bolt"],
+	},
+	{
 		name: "Shadowling",
 		level: 3,
 		health: 25,
 		description:
 			"A small and elusive creature that hides in the shadows, striking from darkness.",
-		abilities: ["Shadow Step", "Silent Strike"],
+		abilities: ["Shadow Step", "Siclent Strike"],
 	},
 	{
 		name: "Ember Sprite",
@@ -144,7 +232,7 @@ export default [
 		abilities: ["Magma Surge", "Fire Immunity"],
 	},
 	{
-		name: "Dragon",
+		name: "Lesser Dragon",
 		level: 20,
 		health: 300,
 		description:
@@ -174,5 +262,13 @@ export default [
 		description:
 			"A nightmarish entity that harvests souls, the Shadowsoul Reaper can phase between dimensions and unleash dark energy.",
 		abilities: ["Soul Harvest", "Dimensional Shift"],
+	},
+	{
+		name: "Ancient Dragon",
+		level: 30,
+		health: 650,
+		description:
+			"An ancient and powerful dragon with devastating breath attacks and impenetrable scales.",
+		abilities: ["Dragon Breath", "Scales of Resistance", "Dragon Roar"],
 	},
 ];
