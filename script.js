@@ -1,13 +1,17 @@
 import monsters from "./gameProperties/monsters.js";
 import weapons from "./gameProperties/weapons.js";
+import comsumables from "./gameProperties/comsumables.js";
 
-let xp = 1;
+let xp = 0;
+let xpMultiplier = 1;
+let level = 1;
+let xpToNextLevel = 20;
 let health = 100;
-let gold = 15;
+let gold = 10;
 let currentWeapon = 0;
 let fighting;
 let monsterHealth;
-let inventory = ["stick"];
+let inventory = ["Claw hammer"];
 
 let firstMonster;
 let secondMonster;
@@ -16,7 +20,7 @@ let secondMonsterText;
 
 function pickMonsters() {
 	const filteredMonsters = monsters.filter((m) => {
-		return m.level >= xp - 6 && m.level <= xp + 6;
+		return m.level >= level - 6 && m.level <= level + 6;
 	});
 
 	firstMonster =
@@ -31,13 +35,12 @@ function pickMonsters() {
 	}
 }
 
-pickMonsters();
-
 const button1 = document.querySelector("#button1");
 const button2 = document.querySelector("#button2");
 const button3 = document.querySelector("#button3");
 const text = document.querySelector("#text");
 const xpText = document.querySelector("#xpText");
+const levelText = document.querySelector("#levelText");
 const healthText = document.querySelector("#healthText");
 const goldText = document.querySelector("#goldText");
 const monsterStats = document.querySelector("#monsterStats");
@@ -49,7 +52,7 @@ const currentWeaponText = document.querySelector("#weaponText");
 const locations = [
 	{
 		name: "town square",
-		"button text": ["Go to store", "Go to cave", "Fight dragon"],
+		"button text": ["Go to store", "Go to dungeon", "Fight dragon"],
 		"button functions": [goStore, goCave, fightDragon],
 		text: 'You are in the town square. You see a sign that says "Store".',
 	},
@@ -188,7 +191,8 @@ function update(location) {
 
 function createWeaponCard(weapon) {
 	const card = document.createElement("div");
-	card.classList.add("weaponCard");
+	card.classList.add("storeItemCard");
+	card.style.backgroundColor = "purple";
 
 	const title = document.createElement("h3");
 	title.textContent = weapon.name;
@@ -240,6 +244,43 @@ function createWeaponCard(weapon) {
 	return card;
 }
 
+function createPotionCard(potion) {
+	const card = document.createElement("div");
+	card.classList.add("storeItemCard");
+	card.style.backgroundColor = "red";
+
+	const title = document.createElement("h3");
+	title.textContent = potion.name;
+	card.appendChild(title);
+
+	const cost = document.createElement("p");
+	cost.textContent = `Cost: ${potion.cost}`;
+	card.appendChild(cost);
+
+	const description = document.createElement("p");
+	description.textContent = `Description: ${potion.description}`;
+	card.appendChild(description);
+
+	const buyButton = document.createElement("button");
+	buyButton.textContent = "Buy";
+	buyButton.addEventListener("click", () => {
+		console.log(potion);
+		if (gold < potion.cost) {
+			alert("You do not have enough gold to buy this potion.");
+			return;
+		}
+		gold -= potion.cost;
+		goldText.innerText = gold;
+		health += potion.heal;
+		healthText.innerText = health;
+		alert(`You bought ${potion?.name}!`);
+		goTown();
+	});
+	card.appendChild(buyButton);
+
+	return card;
+}
+
 function displayWeapons() {
 	const weaponStore = document.getElementById("store");
 
@@ -259,6 +300,15 @@ function displayWeapons() {
 	});
 }
 
+function displayPotions() {
+	const potionStore = document.getElementById("store");
+
+	comsumables.forEach((potion) => {
+		const card = createPotionCard(potion);
+		potionStore.appendChild(card);
+	});
+}
+
 function goTown() {
 	if (store.style.display === "flex") {
 		store.style.display = "none";
@@ -267,70 +317,28 @@ function goTown() {
 }
 
 function goStore() {
+	update(locations[1]);
 	store.style.display = "flex";
+	displayPotions();
 	displayWeapons();
 }
 
 function goCave() {
+	pickMonsters();
+	locations[2]["button text"][0] = `Fight ${firstMonsterText}`;
+	locations[2]["button text"][1] = `Fight ${secondMonsterText}`;
+	locations[2]["button functions"][0] = () => fightMonster(firstMonster);
+	locations[2]["button functions"][1] = () => fightMonster(secondMonster);
 	update(locations[2]);
 	text.innerText = `You enter the cave. You see a ${firstMonsterText} and a ${secondMonsterText}.`;
 }
 
-function buyHealth() {
-	if (gold >= 10) {
-		gold -= 10;
-		health += 10;
-		goldText.innerText = gold;
-		healthText.innerText = health;
-	} else {
-		text.innerText = "You do not have enough gold to buy health.";
-	}
-}
-
-// function buyWeapon() {
-// 	if (currentWeapon < weapons.length - 1) {
-// 		if (gold >= 30) {
-// 			gold -= 30;
-// 			currentWeapon++;
-// 			goldText.innerText = gold;
-// 			let newWeapon = weapons[currentWeapon].name;
-// 			text.innerText = "You now have a " + newWeapon + ".";
-// 			inventory.push(newWeapon);
-// 			text.innerText += " In your inventory you have: " + inventory;
-// 		} else {
-// 			text.innerText = "You do not have enough gold to buy a weapon.";
-// 		}
-// 	} else {
-// 		text.innerText = "You already have the most powerful weapon!";
-// 		button2.innerText = "Sell weapon for 15 gold";
-// 		button2.onclick = sellWeapon;
-// 	}
-// }
-
-function sellWeapon() {
-	if (inventory.length > 1) {
-		gold += 15;
-		goldText.innerText = gold;
-		let currentWeapon = inventory.shift();
-		text.innerText = "You sold a " + currentWeapon + ".";
-		text.innerText += " In your inventory you have: " + inventory;
-	} else {
-		text.innerText = "Don't sell your only weapon!";
-	}
-}
-
-// function fightSlime() {
-// 	fighting = 0;
-// 	goFight();
-// }
-
-// function fightBeast() {
-// 	fighting = 1;
-// 	goFight();
-// }
-
 function fightDragon() {
-	fighting = 2;
+	if (level < 25) {
+		text.innerText = "You are not strong enough to fight the Ancient Dragon.";
+		return;
+	}
+	fighting = monsters.length - 1;
 	goFight();
 }
 
@@ -362,7 +370,7 @@ function attack() {
 	if (health <= 0) {
 		lose();
 	} else if (monsterHealth <= 0) {
-		fighting === 2 ? winGame() : defeatMonster();
+		fighting === monsters[monsters.length - 1] ? winGame() : defeatMonster();
 	}
 	if (Math.random() <= 0.1 && inventory.length !== 1) {
 		text.innerText += " Your " + inventory.pop() + " breaks.";
@@ -371,7 +379,9 @@ function attack() {
 }
 
 function getMonsterAttackValue(level) {
-	const hit = level * 5 - Math.floor(Math.random() * xp);
+	const hit =
+		level * Math.floor(Math.random() * (2.5 - 1 + 1) + 1) -
+		Math.floor(Math.random() * xp);
 	console.log(hit);
 	return hit > 0 ? hit : 0;
 }
@@ -384,12 +394,38 @@ function dodge() {
 	text.innerText = "You dodge the attack from the " + monsters[fighting].name;
 }
 
+function earnXp() {
+	const baseXpGained = Math.floor(
+		monsters[fighting].level * Math.random() * 10
+	);
+	console.log("baseXpGained", baseXpGained);
+	const xpGained = baseXpGained * xpMultiplier;
+	console.log("xpGained", xpGained);
+
+	xp += xpGained;
+
+	if (xp >= xpToNextLevel) {
+		levelUp();
+		alert("You leveled up!");
+	}
+}
+
+function levelUp() {
+	level++;
+	xpMultiplier += 0.1;
+	xpToNextLevel += Math.floor(xpToNextLevel * 0.5);
+
+	levelText.innerText = level;
+	xpText.innerText = xp;
+}
+
 function defeatMonster() {
-	gold += Math.floor(monsters[fighting].level * 6.7);
-	xp += monsters[fighting].level;
+	gold += Math.floor(monsters[fighting].level * Math.random() * 8) + 1;
 	goldText.innerText = gold;
 	xpText.innerText = xp;
 	update(locations[4]);
+	earnXp();
+	console.log("xp", xp);
 }
 
 function lose() {
@@ -401,14 +437,18 @@ function winGame() {
 }
 
 function restart() {
+	level = 1;
+	xpMultiplier = 1;
+	xpToNextLevel = 20;
 	xp = 0;
 	health = 100;
-	gold = 50;
+	gold = 10;
 	currentWeapon = 0;
 	inventory = ["stick"];
 	goldText.innerText = gold;
 	healthText.innerText = health;
 	xpText.innerText = xp;
+	levelText.innerText = level;
 	goTown();
 }
 
