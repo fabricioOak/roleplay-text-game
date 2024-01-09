@@ -16,7 +16,7 @@ export default [
 		abilities: ["Split", "Acidic Touch"],
 	},
 	{
-		name: "Fanding Shade",
+		name: "Fading Shade",
 		level: 4,
 		health: 30,
 		description:
