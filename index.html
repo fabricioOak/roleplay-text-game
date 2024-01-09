@@ -7,12 +7,16 @@
 	</head>
 	<body>
 		<div id="game">
-			<div id="stats">
+			<div class="stats">
 				<span class="stat"
 					>Level: <strong><span id="levelText">1</span></strong></span
 				>
 				<span class="stat"
-					>XP: <strong><span id="xpText">0</span></strong></span
+					>Current XP: <strong><span id="xpText">0</span></strong></span
+				>
+				<span class="stat"
+					>Required XP to Level Up
+					<strong><span id="requiredXpLevelUp">20</span></strong></span
 				>
 				<span class="stat"
 					>Health: <strong><span id="healthText">100</span></strong></span
@@ -20,8 +24,10 @@
 				<span class="stat"
 					>Gold: <strong><span id="goldText">10</span></strong></span
 				>
+			</div>
+			<div class="stats">
 				<span class="stat">
-					Current Weapon: <strong><span id="weaponText">stick</span></strong>
+					Current Weapon: <strong><span id="weaponText">Stick</span></strong>
 				</span>
 				<span class="stat">
 					Weapon Damage: <strong><span id="weaponDamageText">5</span></strong>
@@ -42,9 +48,11 @@
 				></span>
 			</div>
 			<div id="text">
-				Welcome to Dragon Repeller. You must defeat the dragon that is
-				preventing people from leaving the town. You are in the town square.
-				Where do you want to go? Use the buttons above.
+				Welcome to Dragon Repeller. You are a brave knight who is trying to kill
+				the dragon that is terrorizing the village. You can go to the store to
+				buy a better weapon or go to the dungeon to fight monsters and earn XP
+				and gold. When you have enough XP, you can level up and fight the
+				Ancient Dragon to win the game.
 			</div>
 
 			<div id="store"></div>
