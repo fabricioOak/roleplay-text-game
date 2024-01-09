@@ -11,7 +11,7 @@ let gold = 10;
 let currentWeapon = 0;
 let fighting;
 let monsterHealth;
-let inventory = ["Claw hammer"];
+let inventory = ["Stick"];
 
 let firstMonster;
 let secondMonster;
@@ -48,6 +48,8 @@ const monsterName = document.querySelector("#monsterName");
 const monsterHealthText = document.querySelector("#monsterHealth");
 const store = document.querySelector("#store");
 const currentWeaponText = document.querySelector("#weaponText");
+const requiredXpLevelUpText = document.querySelector("#requiredXpLevelUp");
+const weaponDamageText = document.querySelector("#weaponDamageText");
 
 const locations = [
 	{
@@ -235,7 +237,9 @@ function createWeaponCard(weapon) {
 		console.log(inventory);
 		text.innerText += ` You now have a ${weapon?.name}. In your inventory you have: ${inventory}`;
 		currentWeaponText.innerText = weapon?.name;
+		weaponDamageText.innerText = weapon?.power;
 		currentWeapon = weapons.indexOf(weapon);
+
 		goTown();
 		alert(`You bought ${weapon?.name}!`);
 	});
@@ -355,13 +359,26 @@ function fightMonster(monster) {
 }
 
 function attack() {
+	const weaponPower = weapons[currentWeapon].power;
+	const randomXp = Math.floor(Math.random() * level) + 2;
+
+	let damageDealt =
+		playerSpecialHit(weaponPower, weapons[currentWeapon].special) + randomXp;
+
+	console.log("You did", damageDealt, "damage.");
+
 	text.innerText = "The " + monsters[fighting].name + " attacks.";
-	text.innerText +=
-		" You attack it with your " + weapons[currentWeapon].name + ".";
 	health -= getMonsterAttackValue(monsters[fighting].level);
+
 	if (isMonsterHit()) {
-		monsterHealth -=
-			weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;
+		text.innerText +=
+			" You attack it with your " +
+			weapons[currentWeapon].name +
+			"." +
+			" You deal " +
+			damageDealt +
+			" damage.";
+		monsterHealth -= damageDealt;
 	} else {
 		text.innerText += " You miss.";
 	}
@@ -378,11 +395,36 @@ function attack() {
 	}
 }
 
+function playerSpecialHit(weaponPower, special) {
+	const activateChance = 0.1;
+	let newWeaponPower;
+
+	if (special === null) return weaponPower;
+
+	if (activateChance >= Math.random()) {
+		if (special === "Double Shot") {
+			newWeaponPower = weaponPower * 2;
+			alert(" Double shot!");
+		}
+		if (special === "Piercing Shot") {
+			newWeaponPower = weaponPower * 1.5;
+			alert(" Piercing shot!");
+		}
+		if (special === "Critical") {
+			newWeaponPower = weaponPower * 3;
+			alert(" Critical hit!");
+		}
+
+		weaponPower = newWeaponPower;
+	}
+
+	return weaponPower;
+}
+
 function getMonsterAttackValue(level) {
 	const hit =
 		level * Math.floor(Math.random() * (2.5 - 1 + 1) + 1) -
 		Math.floor(Math.random() * xp);
-	console.log(hit);
 	return hit > 0 ? hit : 0;
 }
 
@@ -403,6 +445,7 @@ function earnXp() {
 	console.log("xpGained", xpGained);
 
 	xp += xpGained;
+	xpText.innerText = xp;
 
 	if (xp >= xpToNextLevel) {
 		levelUp();
@@ -413,7 +456,8 @@ function earnXp() {
 function levelUp() {
 	level++;
 	xpMultiplier += 0.1;
-	xpToNextLevel += Math.floor(xpToNextLevel * 0.5);
+	xpToNextLevel += Math.floor(xpToNextLevel * 3.4);
+	requiredXpLevelUpText.innerText = xpToNextLevel;
 
 	levelText.innerText = level;
 	xpText.innerText = xp;
@@ -423,8 +467,8 @@ function defeatMonster() {
 	gold += Math.floor(monsters[fighting].level * Math.random() * 8) + 1;
 	goldText.innerText = gold;
 	xpText.innerText = xp;
-	update(locations[4]);
 	earnXp();
+	update(locations[4]);
 	console.log("xp", xp);
 }
 
