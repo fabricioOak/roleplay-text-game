@@ -1,17 +1,20 @@
 import monsters from "./gameProperties/monsters.js";
 import weapons from "./gameProperties/weapons.js";
 import comsumables from "./gameProperties/comsumables.js";
+import playerInfo from "./gameProperties/playerInfo.js";
 
-let xp = 0;
-let xpMultiplier = 1;
-let level = 1;
-let xpToNextLevel = 20;
-let health = 100;
-let gold = 10;
-let currentWeapon = 0;
-let fighting;
-let monsterHealth;
-let inventory = ["Stick"];
+let playerStats = playerInfo;
+
+// let xp = 0;
+// let xpMultiplier = 1;
+// let level = 1;
+// let xpToNextLevel = 20;
+// let health = 100;
+// let gold = 10;
+// let currentWeapon = 0;
+// let fighting;
+// let monsterHealth;
+// let inventory = ["Stick"];
 
 let firstMonster;
 let secondMonster;
@@ -20,7 +23,7 @@ let secondMonsterText;
 
 function pickMonsters() {
 	const filteredMonsters = monsters.filter((m) => {
-		return m.level >= level - 6 && m.level <= level + 6;
+		return m.level >= playerStats.level - 6 && m.level <= playerStats.level + 6;
 	});
 
 	firstMonster =
@@ -50,6 +53,7 @@ const store = document.querySelector("#store");
 const currentWeaponText = document.querySelector("#weaponText");
 const requiredXpLevelUpText = document.querySelector("#requiredXpLevelUp");
 const weaponDamageText = document.querySelector("#weaponDamageText");
+const bestiaryButton = document.querySelector("#bestiaryButton");
 
 const locations = [
 	{
@@ -95,7 +99,7 @@ const locations = [
 			"Go to town square",
 			"Go to town square",
 		],
-		"button functions": [goTown, goTown, easterEgg],
+		"button functions": [goTown, goTown, goTown],
 		text: 'The monster screams "Arg!" as it dies. You gain experience points and find gold.',
 	},
 	{
@@ -109,12 +113,6 @@ const locations = [
 		"button text": ["REPLAY?", "REPLAY?", "REPLAY?"],
 		"button functions": [restart, restart, restart],
 		text: "You defeat the dragon! YOU WIN THE GAME! 🎉",
-	},
-	{
-		name: "easter egg",
-		"button text": ["2", "8", "Go to town square?"],
-		"button functions": [pickTwo, pickEight, goTown],
-		text: "You find a secret game. Pick a number above. Ten numbers will be randomly chosen between 0 and 10. If the number you choose matches one of the random numbers, you win!",
 	},
 ];
 
@@ -227,18 +225,18 @@ function createWeaponCard(weapon) {
 	buyButton.textContent = "Buy";
 	buyButton.addEventListener("click", () => {
 		console.log(weapon);
-		if (gold < weapon.cost) {
+		if (playerStats.gold < weapon.cost) {
 			alert("You do not have enough gold to buy this weapon.");
 			return;
 		}
-		gold -= weapon.cost;
-		goldText.innerText = gold;
-		inventory.push(weapon?.name);
-		console.log(inventory);
-		text.innerText += ` You now have a ${weapon?.name}. In your inventory you have: ${inventory}`;
+		playerStats.gold -= weapon.cost;
+		goldText.innerText = playerStats.gold;
+		playerStats.inventory.push(weapon?.name);
+		console.log(playerStats.inventory);
+		text.innerText += ` You now have a ${weapon?.name}. In your inventory you have: ${playerStats.inventory}`;
 		currentWeaponText.innerText = weapon?.name;
 		weaponDamageText.innerText = weapon?.power;
-		currentWeapon = weapons.indexOf(weapon);
+		playerStats.currentWeapon = weapons.indexOf(weapon);
 
 		goTown();
 		alert(`You bought ${weapon?.name}!`);
@@ -269,14 +267,14 @@ function createPotionCard(potion) {
 	buyButton.textContent = "Buy";
 	buyButton.addEventListener("click", () => {
 		console.log(potion);
-		if (gold < potion.cost) {
+		if (playerStats.gold < potion.cost) {
 			alert("You do not have enough gold to buy this potion.");
 			return;
 		}
-		gold -= potion.cost;
-		goldText.innerText = gold;
-		health += potion.heal;
-		healthText.innerText = health;
+		playerStats.gold -= potion.cost;
+		goldText.innerText = playerStats.gold;
+		playerStats.health += potion.heal;
+		healthText.innerText = playerStats.health;
 		alert(`You bought ${potion?.name}!`);
 		goTown();
 	});
@@ -289,7 +287,7 @@ function displayWeapons() {
 	const weaponStore = document.getElementById("store");
 
 	// Hide already bought weapons
-	const boughtWeapons = inventory.map((weaponName) => {
+	const boughtWeapons = playerStats.inventory.map((weaponName) => {
 		return weapons.find((weapon) => weapon.name === weaponName);
 	});
 
@@ -310,6 +308,39 @@ function displayPotions() {
 	comsumables.forEach((potion) => {
 		const card = createPotionCard(potion);
 		potionStore.appendChild(card);
+	});
+}
+
+function toggleBestiary() {
+	displayBestiary();
+	const bestiary = document.getElementById("bestiary");
+	if (bestiary.style.display === "none") {
+		bestiary.style.display = "block";
+	} else {
+		bestiary.style.display = "none";
+	}
+}
+
+function displayBestiary() {
+	const bestiary = document.getElementById("bestiary");
+
+	monsters.forEach((monster) => {
+		const card = document.createElement("div");
+		card.classList.add("bestiaryCard");
+
+		const title = document.createElement("h3");
+		title.textContent = monster.name;
+		card.appendChild(title);
+
+		const level = document.createElement("p");
+		level.textContent = `Level: ${monster.level}`;
+		card.appendChild(level);
+
+		const description = document.createElement("p");
+		description.textContent = `Description: ${monster.description}`;
+		card.appendChild(description);
+
+		bestiary.appendChild(card);
 	});
 }
 
@@ -338,60 +369,63 @@ function goCave() {
 }
 
 function fightDragon() {
-	if (level < 25) {
+	if (playerStats.level < 25) {
 		text.innerText = "You are not strong enough to fight the Ancient Dragon.";
 		return;
 	}
-	fighting = monsters.length - 1;
+	playerStats.fighting = monsters.length - 1;
 	goFight();
 }
 
 function fightMonster(monster) {
 	update(locations[3]);
 	monsterStats.style.display = "block";
-	fighting = monsters.indexOf(monster);
-	monsterHealth = monster.health;
+	playerStats.fighting = monsters.indexOf(monster);
+	playerStats.monsterHealth = monster.health;
 	monsterName.innerText = monster.name;
-	monsterHealthText.innerText = monsterHealth;
+	monsterHealthText.innerText = playerStats.monsterHealth;
 	text.innerText =
 		"You are fighting a " + monster.name + ". " + monster.description;
 	console.log(monster);
 }
 
 function attack() {
-	const weaponPower = weapons[currentWeapon].power;
-	const randomXp = Math.floor(Math.random() * level) + 2;
+	const weaponPower = weapons[playerStats.currentWeapon].power;
+	const randomXp = Math.floor(Math.random() * playerStats.level) + 2;
 
 	let damageDealt =
-		playerSpecialHit(weaponPower, weapons[currentWeapon].special) + randomXp;
+		playerSpecialHit(weaponPower, weapons[playerStats.currentWeapon].special) +
+		randomXp;
 
 	console.log("You did", damageDealt, "damage.");
 
-	text.innerText = "The " + monsters[fighting].name + " attacks.";
-	health -= getMonsterAttackValue(monsters[fighting].level);
+	text.innerText = "The " + monsters[playerStats.fighting].name + " attacks.";
+	playerStats.health -= getMonsterAttackValue(
+		monsters[playerStats.fighting].level
+	);
 
 	if (isMonsterHit()) {
 		text.innerText +=
 			" You attack it with your " +
-			weapons[currentWeapon].name +
+			weapons[playerStats.currentWeapon].name +
 			"." +
 			" You deal " +
 			damageDealt +
 			" damage.";
-		monsterHealth -= damageDealt;
+		playerStats.monsterHealth -= damageDealt;
 	} else {
 		text.innerText += " You miss.";
 	}
-	healthText.innerText = health;
-	monsterHealthText.innerText = monsterHealth;
-	if (health <= 0) {
+	healthText.innerText = playerStats.health;
+	monsterHealthText.innerText = playerStats.monsterHealth;
+	if (playerStats.health <= 0) {
 		lose();
-	} else if (monsterHealth <= 0) {
-		fighting === monsters[monsters.length - 1] ? winGame() : defeatMonster();
+	} else if (playerStats.monsterHealth <= 0) {
+		playerStats.fighting === monsters.length - 1 ? winGame() : defeatMonster();
 	}
-	if (Math.random() <= 0.1 && inventory.length !== 1) {
-		text.innerText += " Your " + inventory.pop() + " breaks.";
-		currentWeapon--;
+	if (Math.random() <= 0.1 && playerStats.inventory.length !== 1) {
+		text.innerText += " Your " + playerStats.inventory.pop() + " breaks.";
+		playerStats.currentWeapon--;
 	}
 }
 
@@ -424,52 +458,54 @@ function playerSpecialHit(weaponPower, special) {
 function getMonsterAttackValue(level) {
 	const hit =
 		level * Math.floor(Math.random() * (2.5 - 1 + 1) + 1) -
-		Math.floor(Math.random() * xp);
+		Math.floor(Math.random() * playerStats.xp);
 	return hit > 0 ? hit : 0;
 }
 
 function isMonsterHit() {
-	return Math.random() > 0.2 || health < 20;
+	return Math.random() > 0.2 || playerStats.health < 20;
 }
 
 function dodge() {
-	text.innerText = "You dodge the attack from the " + monsters[fighting].name;
+	text.innerText =
+		"You dodge the attack from the " + monsters[playerStats.fighting].name;
 }
 
 function earnXp() {
 	const baseXpGained = Math.floor(
-		monsters[fighting].level * Math.random() * 10
+		monsters[playerStats.fighting].level * Math.random() * 10
 	);
 	console.log("baseXpGained", baseXpGained);
-	const xpGained = baseXpGained * xpMultiplier;
+	const xpGained = baseXpGained * playerStats.xpMultiplier;
 	console.log("xpGained", xpGained);
 
-	xp += xpGained;
-	xpText.innerText = xp;
+	playerStats.xp += xpGained;
+	xpText.innerText = playerStats.xp;
 
-	if (xp >= xpToNextLevel) {
+	if (playerStats.xp >= playerStats.xpToNextLevel) {
 		levelUp();
 		alert("You leveled up!");
 	}
 }
 
 function levelUp() {
-	level++;
-	xpMultiplier += 0.1;
-	xpToNextLevel += Math.floor(xpToNextLevel * 3.4);
-	requiredXpLevelUpText.innerText = xpToNextLevel;
+	playerStats.level++;
+	playerStats.xpMultiplier += 0.1;
+	playerStats.xpToNextLevel += Math.floor(playerStats.xpToNextLevel * 3.4);
+	requiredXpLevelUpText.innerText = playerStats.xpToNextLevel;
 
-	levelText.innerText = level;
-	xpText.innerText = xp;
+	levelText.innerText = playerStats.level;
+	xpText.innerText = playerStats.xp;
 }
 
 function defeatMonster() {
-	gold += Math.floor(monsters[fighting].level * Math.random() * 8) + 1;
-	goldText.innerText = gold;
-	xpText.innerText = xp;
+	playerStats.gold +=
+		Math.floor(monsters[playerStats.fighting].level * Math.random() * 8) + 1;
+	goldText.innerText = playerStats.gold;
+	xpText.innerText = playerStats.xp;
 	earnXp();
 	update(locations[4]);
-	console.log("xp", xp);
+	console.log("xp", playerStats.xp);
 }
 
 function lose() {
@@ -481,52 +517,17 @@ function winGame() {
 }
 
 function restart() {
-	level = 1;
-	xpMultiplier = 1;
-	xpToNextLevel = 20;
-	xp = 0;
-	health = 100;
-	gold = 10;
-	currentWeapon = 0;
-	inventory = ["stick"];
-	goldText.innerText = gold;
-	healthText.innerText = health;
-	xpText.innerText = xp;
-	levelText.innerText = level;
+	playerStats.level = 1;
+	playerStats.xpMultiplier = 1;
+	playerStats.xpToNextLevel = 20;
+	playerStats.xp = 0;
+	playerStats.health = 100;
+	playerStats.gold = 10;
+	playerStats.currentWeapon = 0;
+	playerStats.inventory = ["stick"];
+	goldText.innerText = playerStats.gold;
+	healthText.innerText = playerStats.health;
+	xpText.innerText = playerStats.xp;
+	levelText.innerText = playerStats.level;
 	goTown();
-}
-
-function easterEgg() {
-	update(locations[7]);
-}
-
-function pickTwo() {
-	pick(2);
-}
-
-function pickEight() {
-	pick(8);
-}
-
-function pick(guess) {
-	let numbers = [];
-	while (numbers.length < 10) {
-		numbers.push(Math.floor(Math.random() * 11));
-	}
-	text.innerText = "You picked " + guess + ". Here are the random numbers:\n";
-	for (let i = 0; i < 10; i++) {
-		text.innerText += numbers[i] + "\n";
-	}
-	if (numbers.indexOf(guess) !== -1) {
-		text.innerText += "Right! You win 20 gold!";
-		gold += 20;
-		goldText.innerText = gold;
-	} else {
-		text.innerText += "Wrong! You lose 10 health!";
-		health -= 10;
-		healthText.innerText = health;
-		if (health <= 0) {
-			lose();
-		}
-	}
 }
