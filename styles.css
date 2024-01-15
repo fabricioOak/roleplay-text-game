@@ -43,6 +43,10 @@ body {
 	overflow-y: scroll;
 }
 
+#bestiaryButton {
+	display: none;
+}
+
 #bestiary {
 	display: none;
 	flex-wrap: wrap;
