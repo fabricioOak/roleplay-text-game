@@ -1,43 +1,17 @@
+// Importing game properties modules
 import monsters from "./gameProperties/monsters.js";
 import weapons from "./gameProperties/weapons.js";
 import comsumables from "./gameProperties/comsumables.js";
 import playerInfo from "./gameProperties/playerInfo.js";
 
+// Declaration of variables
 let playerStats = playerInfo;
-
-// let xp = 0;
-// let xpMultiplier = 1;
-// let level = 1;
-// let xpToNextLevel = 20;
-// let health = 100;
-// let gold = 10;
-// let currentWeapon = 0;
-// let fighting;
-// let monsterHealth;
-// let inventory = ["Stick"];
-
 let firstMonster;
 let secondMonster;
 let firstMonsterText;
 let secondMonsterText;
 
-function pickMonsters() {
-	const filteredMonsters = monsters.filter((m) => {
-		return m.level >= playerStats.level - 6 && m.level <= playerStats.level + 6;
-	});
-
-	firstMonster =
-		filteredMonsters[Math.floor(Math.random() * filteredMonsters.length)];
-	secondMonster =
-		filteredMonsters[Math.floor(Math.random() * filteredMonsters.length)];
-	if (firstMonster === secondMonster) {
-		pickMonsters();
-	} else {
-		firstMonsterText = firstMonster.name;
-		secondMonsterText = secondMonster.name;
-	}
-}
-
+// DOM element references
 const button1 = document.querySelector("#button1");
 const button2 = document.querySelector("#button2");
 const button3 = document.querySelector("#button3");
@@ -55,6 +29,7 @@ const requiredXpLevelUpText = document.querySelector("#requiredXpLevelUp");
 const weaponDamageText = document.querySelector("#weaponDamageText");
 const bestiaryButton = document.querySelector("#bestiaryButton");
 
+// Game locations and their properties
 const locations = [
 	{
 		name: "town square",
@@ -116,6 +91,7 @@ const locations = [
 	},
 ];
 
+// Array of special effects for weapons (WIP)
 const SPECIAL_EFFECTS = [
 	{
 		name: "Double Shot",
@@ -173,10 +149,28 @@ const SPECIAL_EFFECTS = [
 	},
 ];
 
-// initialize buttons
+// Button event listeners
 button1.onclick = goStore;
 button2.onclick = goCave;
 button3.onclick = fightDragon;
+bestiaryButton.onclick = toggleBestiary;
+// Function declarations
+function pickMonsters() {
+	const filteredMonsters = monsters.filter((m) => {
+		return m.level >= playerStats.level - 6 && m.level <= playerStats.level + 6;
+	});
+
+	firstMonster =
+		filteredMonsters[Math.floor(Math.random() * filteredMonsters.length)];
+	secondMonster =
+		filteredMonsters[Math.floor(Math.random() * filteredMonsters.length)];
+	if (firstMonster === secondMonster) {
+		pickMonsters();
+	} else {
+		firstMonsterText = firstMonster.name;
+		secondMonsterText = secondMonster.name;
+	}
+}
 
 function update(location) {
 	monsterStats.style.display = "none";
@@ -287,13 +281,8 @@ function displayWeapons() {
 	const weaponStore = document.getElementById("store");
 
 	// Hide already bought weapons
-	const boughtWeapons = playerStats.inventory.map((weaponName) => {
-		return weapons.find((weapon) => weapon.name === weaponName);
-	});
-
-	// Display only unbought weapons
 	const unboughtWeapons = weapons.filter((weapon) => {
-		return !boughtWeapons.includes(weapon);
+		return !playerStats.inventory.includes(weapon.name);
 	});
 
 	unboughtWeapons.forEach((weapon) => {
@@ -312,9 +301,10 @@ function displayPotions() {
 }
 
 function toggleBestiary() {
-	displayBestiary();
 	const bestiary = document.getElementById("bestiary");
+
 	if (bestiary.style.display === "none") {
+		displayBestiary();
 		bestiary.style.display = "block";
 	} else {
 		bestiary.style.display = "none";
@@ -490,10 +480,10 @@ function earnXp() {
 
 function levelUp() {
 	playerStats.level++;
+	playerStats.health += 100;
 	playerStats.xpMultiplier += 0.1;
-	playerStats.xpToNextLevel += Math.floor(playerStats.xpToNextLevel * 3.4);
+	playerStats.xpToNextLevel += Math.floor(playerStats.xpToNextLevel * 1.4);
 	requiredXpLevelUpText.innerText = playerStats.xpToNextLevel;
-
 	levelText.innerText = playerStats.level;
 	xpText.innerText = playerStats.xp;
 }
