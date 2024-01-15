@@ -1,5 +1,7 @@
 body {
 	background-color: #0a0a23;
+	margin: 0;
+	font-family: "Arial", sans-serif;
 }
 
 #text {
@@ -9,31 +11,42 @@ body {
 }
 
 #game {
-	min-width: 600px;
-	max-width: 600px;
-	max-height: 600px;
+	width: 600px;
+	max-height: 700px;
 	background-color: #ffffff;
-	color: #ffffff;
-	margin: 30px auto 0px;
+	color: #0a0a23;
+	margin: 30px auto 0;
 	padding: 10px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-
 #controls,
 .stats {
 	border: 1px solid #0a0a23;
-	padding: 5px;
+	padding: 10px;
 	color: #0a0a23;
+	margin-bottom: 10px;
 }
 
 #monsterStats {
 	display: none;
 	border: 1px solid #0a0a23;
-	padding: 5px;
+	padding: 10px;
 	color: #ffffff;
 	background-color: #c70d0d;
+	margin-bottom: 10px;
 }
 
 #store {
+	display: none;
+	flex-wrap: wrap;
+	padding: 5px;
+	color: #ffffff;
+	background-color: teal;
+	height: 400px;
+	overflow-y: scroll;
+}
+
+#bestiary {
 	display: none;
 	flex-wrap: wrap;
 	padding: 5px;
@@ -47,27 +60,62 @@ body {
 	display: none;
 }
 
-#bestiary {
-	display: none;
-	flex-wrap: wrap;
-	padding: 5px;
-	color: #ffffff;
-	background-color: teal;
-	height: 400px;
-	overflow-y: scroll;
-}
-
 #bestiary .card {
 	border: 4px solid #ccc;
 	padding: 4px;
 	margin: 4px;
 	width: 150px;
 }
+.cardContainer {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	gap: 20px;
+	padding: 20px;
+	color: #ffffff;
+	background-color: teal;
+	height: 100%;
+	overflow-y: auto;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .storeItemCard {
-	border: 4px solid #ccc;
-	padding: 4px;
-	margin: 4px;
-	width: 150px;
+	background-color: #f9f9f9;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	padding: 20px;
+	margin: 15px;
+	transition: transform 0.3s ease-in-out;
+	width: 100%;
+	max-width: 200px;
+}
+
+.storeItemCard:hover {
+	transform: scale(1.05);
+}
+
+.storeItemCard h3 {
+	margin-bottom: 10px;
+	font-size: 1.5em;
+}
+
+.storeItemCard p {
+	margin: 0;
+}
+
+.storeItemCard p:nth-child(2) {
+	font-weight: bold;
+	color: #cefe12;
+}
+
+button {
+	cursor: pointer;
+	color: #ffffff;
+	background-color: #feac32;
+	border: 3px solid #feac32;
+	padding: 10px 20px;
+	border-radius: 5px;
+	font-size: 1em;
 }
 
 .stat {

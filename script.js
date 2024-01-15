@@ -186,7 +186,7 @@ function update(location) {
 function createWeaponCard(weapon) {
 	const card = document.createElement("div");
 	card.classList.add("storeItemCard");
-	card.style.backgroundColor = "purple";
+	card.style.backgroundColor = "#640D14";
 
 	const title = document.createElement("h3");
 	title.textContent = weapon.name;
@@ -243,7 +243,7 @@ function createWeaponCard(weapon) {
 function createPotionCard(potion) {
 	const card = document.createElement("div");
 	card.classList.add("storeItemCard");
-	card.style.backgroundColor = "red";
+	card.style.backgroundColor = "#21A179";
 
 	const title = document.createElement("h3");
 	title.textContent = potion.name;
@@ -359,7 +359,7 @@ function goCave() {
 }
 
 function fightDragon() {
-	if (playerStats.level < 25) {
+	if (playerStats.level < 25 || playerStats.currentWeapon <= 20) {
 		text.innerText = "You are not strong enough to fight the Ancient Dragon.";
 		return;
 	}
@@ -475,12 +475,12 @@ function earnXp() {
 	if (playerStats.xp >= playerStats.xpToNextLevel) {
 		levelUp();
 		alert("You leveled up!");
+		playerStats.health += 100;
 	}
 }
 
 function levelUp() {
 	playerStats.level++;
-	playerStats.health += 100;
 	playerStats.xpMultiplier += 0.1;
 	playerStats.xpToNextLevel += Math.floor(playerStats.xpToNextLevel * 1.4);
 	requiredXpLevelUpText.innerText = playerStats.xpToNextLevel;
