@@ -10,6 +10,7 @@ let firstMonster;
 let secondMonster;
 let firstMonsterText;
 let secondMonsterText;
+let bestiaryCreated = false;
 
 // DOM element references
 const button1 = document.querySelector("#button1");
@@ -39,8 +40,8 @@ const locations = [
 	},
 	{
 		name: "store",
-		"button text": ["Go to town square", "Go to town square", "Save game"],
-		"button functions": [goTown, goTown, saveState],
+		"button text": ["Go to town square", "Open bestiary", "Save game"],
+		"button functions": [goTown, toggleBestiary, saveState],
 		text: "You enter the store.",
 	},
 	{
@@ -149,7 +150,6 @@ const SPECIAL_EFFECTS = [
 button1.onclick = goStore;
 button2.onclick = goCave;
 button3.onclick = fightDragon;
-bestiaryButton.onclick = toggleBestiary;
 
 // Function declarations
 function pickMonsters() {
@@ -300,11 +300,15 @@ function displayPotions() {
 function toggleBestiary() {
 	const bestiary = document.getElementById("bestiary");
 
-	if (bestiary.style.display === "none") {
+	if (!bestiaryCreated) {
+		store.style.display = "none";
 		displayBestiary();
-		bestiary.style.display = "block";
+		bestiary.style.display = "flex";
+		bestiaryCreated = true;
 	} else {
-		bestiary.style.display = "none";
+		bestiary.style.display =
+			bestiary.style.display === "none" ? "flex" : "none";
+		store.style.display = store.style.display === "none" ? "flex" : "none";
 	}
 }
 
@@ -334,6 +338,9 @@ function displayBestiary() {
 function goTown() {
 	if (store.style.display === "flex") {
 		store.style.display = "none";
+	}
+	if (bestiary.style.display === "flex") {
+		bestiary.style.display = "none";
 	}
 	update(locations[0]);
 }
