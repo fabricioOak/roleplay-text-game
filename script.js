@@ -39,12 +39,8 @@ const locations = [
 	},
 	{
 		name: "store",
-		"button text": [
-			"Go to town square",
-			"Go to town square",
-			"Go to town square",
-		],
-		"button functions": [goTown, goTown, goTown],
+		"button text": ["Go to town square", "Go to town square", "Save game"],
+		"button functions": [goTown, goTown, saveState],
 		text: "You enter the store.",
 	},
 	{
@@ -149,11 +145,12 @@ const SPECIAL_EFFECTS = [
 	},
 ];
 
-// Button event listeners
+// Event listeners
 button1.onclick = goStore;
 button2.onclick = goCave;
 button3.onclick = fightDragon;
 bestiaryButton.onclick = toggleBestiary;
+
 // Function declarations
 function pickMonsters() {
 	const filteredMonsters = monsters.filter((m) => {
@@ -476,6 +473,7 @@ function earnXp() {
 		levelUp();
 		alert("You leveled up!");
 		playerStats.health += 100;
+		healthText.innerText = playerStats.health;
 	}
 }
 
@@ -485,7 +483,7 @@ function levelUp() {
 	playerStats.xpToNextLevel += Math.floor(playerStats.xpToNextLevel * 1.4);
 	requiredXpLevelUpText.innerText = playerStats.xpToNextLevel;
 	levelText.innerText = playerStats.level;
-	xpText.innerText = playerStats.xp;
+	xpText.innerText = Math.floor(playerStats.xp);
 }
 
 function defeatMonster() {
@@ -519,5 +517,36 @@ function restart() {
 	healthText.innerText = playerStats.health;
 	xpText.innerText = playerStats.xp;
 	levelText.innerText = playerStats.level;
+	currentWeaponText.innerText = weapons[playerStats.currentWeapon].name;
+	weaponDamageText.innerText = weapons[playerStats.currentWeapon].power;
+	requiredXpLevelUpText.innerText = playerStats.xpToNextLevel;
+	saveState();
 	goTown();
 }
+
+function saveState() {
+	localStorage.setItem("playerStats", JSON.stringify(playerStats));
+	alert("Game saved!");
+}
+
+function loadState() {
+	try {
+		const savedState = JSON.parse(localStorage.getItem("playerStats"));
+		levelText.innerText = savedState.level;
+		xpText.innerText = savedState.xp;
+		healthText.innerText = savedState.health;
+		goldText.innerText = savedState.gold;
+		currentWeaponText.innerText = weapons[savedState.currentWeapon].name;
+		weaponDamageText.innerText = weapons[savedState.currentWeapon].power;
+		requiredXpLevelUpText.innerText = savedState.xpToNextLevel;
+
+		return savedState;
+	} catch (error) {
+		console.error("Error loading game state:", error);
+		return null; // Or handle the error appropriately
+	}
+}
+
+playerStats = loadState();
+
+console.log("playerStats", playerStats);
