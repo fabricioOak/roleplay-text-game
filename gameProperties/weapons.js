@@ -1,7 +1,7 @@
 export default [
 	{
 		name: "Stick",
-		power: 5,
+		power: 10,
 		cost: 10,
 		description: "A simple wooden stick.",
 		special: "Critical",
