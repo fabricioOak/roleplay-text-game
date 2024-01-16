@@ -356,7 +356,8 @@ function goCave() {
 }
 
 function fightDragon() {
-	if (playerStats.level < 25 || playerStats.currentWeapon <= 20) {
+	if (playerStats.currentWeapon === weapons.length - 1) {
+		console.log(playerStats.currentWeapon === weapons.length - 1);
 		text.innerText = "You are not strong enough to fight the Ancient Dragon.";
 		return;
 	}
@@ -547,6 +548,4 @@ function loadState() {
 	}
 }
 
-playerStats = loadState();
-
-console.log("playerStats", playerStats);
+playerStats = loadState() || playerInfo;
