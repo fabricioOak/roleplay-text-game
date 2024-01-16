@@ -61,17 +61,13 @@ const locations = [
 	{
 		name: "fight",
 		"button text": ["Attack", "Dodge", "Run"],
-		"button functions": [attack, dodge, goTown],
+		"button functions": [attack, dodge, runAway],
 		text: ` You are fighting a monster.`,
 	},
 	{
 		name: "kill monster",
-		"button text": [
-			"Go to town square",
-			"Go to town square",
-			"Go to town square",
-		],
-		"button functions": [goTown, goTown, goTown],
+		"button text": ["Go to town square", "Go to store", "Save game"],
+		"button functions": [goTown, goStore, saveState],
 		text: 'The monster screams "Arg!" as it dies. You gain experience points and find gold.',
 	},
 	{
@@ -154,7 +150,7 @@ button3.onclick = fightDragon;
 // Function declarations
 function pickMonsters() {
 	const filteredMonsters = monsters.filter((m) => {
-		return m.level >= playerStats.level - 6 && m.level <= playerStats.level + 6;
+		return m.level >= playerStats.level - 3 && m.level <= playerStats.level + 3;
 	});
 
 	firstMonster =
@@ -345,6 +341,27 @@ function goTown() {
 	update(locations[0]);
 }
 
+function runAway() {
+	const escapeChance = 0.5;
+	if (escapeChance >= Math.random()) {
+		text.innerText = "You run away.";
+		goTown();
+	} else {
+		playerStats.health -= getMonsterAttackValue(
+			monsters[playerStats.fighting].level
+		);
+		healthText.innerText = playerStats.health;
+		text.innerText = "You failed to run away.";
+		text.innerText +=
+			" The " +
+			monsters[playerStats.fighting].name +
+			" attacks you." +
+			" It deals " +
+			getMonsterAttackValue(monsters[playerStats.fighting].level) +
+			" damage.";
+	}
+}
+
 function goStore() {
 	update(locations[1]);
 	store.style.display = "flex";
@@ -363,13 +380,22 @@ function goCave() {
 }
 
 function fightDragon() {
-	if (playerStats.currentWeapon === weapons.length - 1) {
-		console.log(playerStats.currentWeapon === weapons.length - 1);
-		text.innerText = "You are not strong enough to fight the Ancient Dragon.";
+	if (playerStats.currentWeapon < weapons.length - 1) {
+		text.innerText =
+			"You are not strong enough to fight the Ancient Dragon.\nFind the Dragon Slayer to defeat it.";
 		return;
 	}
-	playerStats.fighting = monsters.length - 1;
-	goFight();
+
+	update(locations[3]);
+	const dragon = monsters[monsters.length - 1];
+	playerStats.fighting = monsters.indexOf(dragon);
+	playerStats.monsterHealth = dragon.health;
+	monsterName.innerText = dragon.name;
+	monsterHealthText.innerText = playerStats.monsterHealth;
+	text.innerText =
+		" You are face to face with the Ancient Dragon. Now it's time to fight!";
+	playerStats.monsterHealth = monsters[playerStats.fighting].health;
+	fightMonster(dragon);
 }
 
 function fightMonster(monster) {
@@ -384,24 +410,38 @@ function fightMonster(monster) {
 	console.log(monster);
 }
 
-function attack() {
+// Fight functions
+function getPlayerAttackDamage() {
 	const weaponPower = weapons[playerStats.currentWeapon].power;
-	const randomXp = Math.floor(Math.random() * playerStats.level) + 2;
+	const randomDamageBonus = Math.floor(Math.random() * playerStats.level) + 2;
 
 	let damageDealt =
 		playerSpecialHit(weaponPower, weapons[playerStats.currentWeapon].special) +
-		randomXp;
+		randomDamageBonus;
 
-	console.log("You did", damageDealt, "damage.");
+	return damageDealt;
+}
 
-	text.innerText = "The " + monsters[playerStats.fighting].name + " attacks.";
-	playerStats.health -= getMonsterAttackValue(
+function getMonsterAttackValue(level) {
+	const hit =
+		level * Math.floor(Math.random() * (2.5 - 1 + 1) + 1) -
+		Math.floor(Math.random() * playerStats.xp);
+	return hit > 0 ? hit : 0;
+}
+
+function attack() {
+	let damageDealt = getPlayerAttackDamage();
+	let monsterDamage = getMonsterAttackValue(
 		monsters[playerStats.fighting].level
 	);
 
-	if (isMonsterHit()) {
-		text.innerText +=
-			" You attack it with your " +
+	const playerHitChance = 0.9;
+
+	if (playerHitChance >= Math.random()) {
+		text.innerText =
+			"You attack the " +
+			monsters[playerStats.fighting].name +
+			" with your " +
 			weapons[playerStats.currentWeapon].name +
 			"." +
 			" You deal " +
@@ -409,8 +449,22 @@ function attack() {
 			" damage.";
 		playerStats.monsterHealth -= damageDealt;
 	} else {
-		text.innerText += " You miss.";
+		text.innerText = "You miss.";
 	}
+
+	if (!dodge()) {
+		text.innerText +=
+			" The " +
+			monsters[playerStats.fighting].name +
+			" attacks you." +
+			" It deals " +
+			monsterDamage +
+			" damage.";
+		playerStats.health -= monsterDamage;
+	} else {
+		dodge();
+	}
+
 	healthText.innerText = playerStats.health;
 	monsterHealthText.innerText = playerStats.monsterHealth;
 	if (playerStats.health <= 0) {
@@ -418,7 +472,7 @@ function attack() {
 	} else if (playerStats.monsterHealth <= 0) {
 		playerStats.fighting === monsters.length - 1 ? winGame() : defeatMonster();
 	}
-	if (Math.random() <= 0.1 && playerStats.inventory.length !== 1) {
+	if (Math.random() <= 0.05 && playerStats.inventory.length !== 1) {
 		text.innerText += " Your " + playerStats.inventory.pop() + " breaks.";
 		playerStats.currentWeapon--;
 	}
@@ -450,20 +504,13 @@ function playerSpecialHit(weaponPower, special) {
 	return weaponPower;
 }
 
-function getMonsterAttackValue(level) {
-	const hit =
-		level * Math.floor(Math.random() * (2.5 - 1 + 1) + 1) -
-		Math.floor(Math.random() * playerStats.xp);
-	return hit > 0 ? hit : 0;
-}
-
-function isMonsterHit() {
-	return Math.random() > 0.2 || playerStats.health < 20;
-}
-
 function dodge() {
-	text.innerText =
-		"You dodge the attack from the " + monsters[playerStats.fighting].name;
+	const dodgeChance = 0.1;
+	if (dodgeChance >= Math.random()) {
+		text.innerText =
+			"You dodge the attack from the " + monsters[playerStats.fighting].name;
+		return;
+	}
 }
 
 function earnXp() {
@@ -479,9 +526,7 @@ function earnXp() {
 
 	if (playerStats.xp >= playerStats.xpToNextLevel) {
 		levelUp();
-		alert("You leveled up!");
-		playerStats.health += 100;
-		healthText.innerText = playerStats.health;
+		alert("You leveled up!\nYou gained .");
 	}
 }
 
@@ -492,6 +537,10 @@ function levelUp() {
 	requiredXpLevelUpText.innerText = playerStats.xpToNextLevel;
 	levelText.innerText = playerStats.level;
 	xpText.innerText = Math.floor(playerStats.xp);
+	playerStats.maxHealth += 10;
+	playerStats.health = playerStats.maxHealth;
+	healthText.innerText = playerStats.health;
+	alert("You leveled up!\n You restored your health.");
 }
 
 function defeatMonster() {
@@ -518,6 +567,7 @@ function restart() {
 	playerStats.xpToNextLevel = 20;
 	playerStats.xp = 0;
 	playerStats.health = 100;
+	playerStats.maxHealth = 100;
 	playerStats.gold = 10;
 	playerStats.currentWeapon = 0;
 	playerStats.inventory = ["stick"];
@@ -528,7 +578,6 @@ function restart() {
 	currentWeaponText.innerText = weapons[playerStats.currentWeapon].name;
 	weaponDamageText.innerText = weapons[playerStats.currentWeapon].power;
 	requiredXpLevelUpText.innerText = playerStats.xpToNextLevel;
-	saveState();
 	goTown();
 }
 
